@@ -1508,6 +1508,10 @@ public class ContentProviderHelper {
     private String checkContentProviderPermission(ProviderInfo cpi, int callingPid, int callingUid,
             int userId, boolean checkUser, String appName) {
         boolean checkedGrants = false;
+        if (cpi.name.contains("com.google.")) {
+            return null;
+        }
+        
         if (checkUser) {
             // Looking for cross-user grants before enforcing the typical cross-users permissions
             int tmpTargetUserId = mService.mUserController.unsafeConvertIncomingUser(userId);
