@@ -105,6 +105,8 @@ public class AndroidKeyStoreSpi extends KeyStoreSpi {
     public static final String TAG = "AndroidKeyStoreSpi";
     public static final String NAME = "AndroidKeyStore";
 
+    public static final String SPOOF_PIXEL_GMS = "persist.sys.pixelprops.gms";
+
     private KeyStore2 mKeyStore;
     private @KeyProperties.Namespace int mNamespace = KeyProperties.NAMESPACE_APPLICATION;
 
@@ -169,7 +171,8 @@ public class AndroidKeyStoreSpi extends KeyStoreSpi {
 
     @Override
     public Certificate[] engineGetCertificateChain(String alias) {
-        if (SystemProperties.getBoolean("persist.sys.pihooks.enable", true)) {
+        boolean isPixelGmsEnabled = SystemProperties.getBoolean(SPOOF_PIXEL_GMS, true);
+        if (isPixelGmsEnabled) {
             PixelPropsUtils.onEngineGetCertificateChain();
         }
 
