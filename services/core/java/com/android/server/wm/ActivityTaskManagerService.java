@@ -4087,9 +4087,7 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
 
     @Override
     public void onPictureInPictureStateChanged(PictureInPictureUiState pipState) {
-        if (!PixelPropsUtils.shouldBypassTaskPermission(mContext)) {
-            enforceTaskPermission("onPictureInPictureUiStateChanged");
-        }
+        enforceTaskPermission("onPictureInPictureStateChanged");
         final Task rootPinnedTask = mRootWindowContainer.getDefaultTaskDisplayArea()
                 .getRootPinnedTask();
         if (rootPinnedTask != null && rootPinnedTask.getTopMostActivity() != null) {
