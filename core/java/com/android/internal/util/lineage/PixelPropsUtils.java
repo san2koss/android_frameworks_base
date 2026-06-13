@@ -172,7 +172,7 @@ public final class PixelPropsUtils {
         String[] props = {
             SystemProperties.get("ro.build.display.id", ""),
             SystemProperties.get("ro.modversion", ""),
-            SystemProperties.get("ro.evolution.version", ""),
+            SystemProperties.get("ro.lineage.version", ""),
             SystemProperties.get("ro.build.flavor", "")
         };
 
@@ -302,11 +302,6 @@ public final class PixelPropsUtils {
     }
 
     public static void setProps(Context context) {
-        if (sIsCustomForkBuild) {
-            if (DEBUG) Log.d(TAG, "Custom fork detected → disabling prop spoofing");
-            return;
-        }
-
         if (Process.isIsolated()) {
             if (DEBUG) Log.d(TAG, "Skipping setProps in isolated process");
             return;
