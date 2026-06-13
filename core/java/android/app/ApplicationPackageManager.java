@@ -926,21 +926,19 @@ public class ApplicationPackageManager extends PackageManager {
     @Override
     public int checkPermission(String permName, String pkgName) {
         int res = getPermissionManager().checkPackageNamePermission(permName, pkgName,
-                mContext.getDeviceId(), getUserId());
+                getUserId());
+
         if (res != PERMISSION_GRANTED) {
-            // some Microsoft apps crash when INTERNET permission check fails, see
-            // com.microsoft.aad.adal.AuthenticationContext.checkInternetPermission() and
-            // com.microsoft.identity.client.PublicClientApplication.checkInternetPermission()
+            String lowerPkgName = pkgName.toLowerCase();
+
             if (Manifest.permission.INTERNET.equals(permName)
-                    // don't rely on Context.getPackageName(), may be different from process package name
                     && pkgName.equals(ActivityThread.currentPackageName())
-                    && pkgName.toLowerCase().contains("microsoft")
-                    && pkgName.toLowerCase().contains("com.android")
-                    && pkgName.toLowerCase().contains("google"))
-            {
+                    && (lowerPkgName.contains("microsoft")
+                        || lowerPkgName.contains("google"))) {
                 return PERMISSION_GRANTED;
             }
         }
+
         return res;
     }
 
