@@ -538,6 +538,23 @@ public class TelephonyManager {
         }
     }
 
+
+    private static final String PROP_FAKE_SIM_ENABLED = "persist.lineagepro.fake_sim.enabled";
+    private static final String PROP_FAKE_SIM_OPERATOR = "persist.lineagepro.fake_sim.operator";
+    private static final String PROP_FAKE_SIM_NAME = "persist.lineagepro.fake_sim.name";
+    private static final String PROP_FAKE_SIM_COUNTRY = "persist.lineagepro.fake_sim.country";
+
+    private static boolean isFakeSimEnabled() {
+      return SystemProperties.getBoolean(PROP_FAKE_SIM_ENABLED, false);
+    }
+
+    private static String getFakeTelephonyProperty(String prop, String fallback) {
+        if (!isFakeSimEnabled()) {
+            return fallback;
+        }
+        return SystemProperties.get(prop, fallback);
+    }
+
     /**
      * Returns the multi SIM variant
      * Returns DSDS for Dual SIM Dual Standby
@@ -2722,7 +2739,9 @@ public class TelephonyManager {
     @UnsupportedAppUsage(maxTargetSdk = Build.VERSION_CODES.P)
     public String getNetworkOperatorName(int subId) {
         int phoneId = SubscriptionManager.getPhoneId(subId);
-        return getTelephonyProperty(phoneId, TelephonyProperties.operator_alpha(), "");
+        return getFakeTelephonyProperty(
+              PROP_FAKE_SIM_NAME,
+              getTelephonyProperty(phoneId, TelephonyProperties.operator_alpha(), ""));
     }
 
     /**
@@ -2767,7 +2786,9 @@ public class TelephonyManager {
      **/
     @UnsupportedAppUsage
     public String getNetworkOperatorForPhone(int phoneId) {
-        return getTelephonyProperty(phoneId, TelephonyProperties.operator_numeric(), "");
+        return getFakeTelephonyProperty(
+                PROP_FAKE_SIM_OPERATOR,
+                getTelephonyProperty(phoneId, TelephonyProperties.operator_numeric(), ""));
     }
 
 
@@ -2849,6 +2870,9 @@ public class TelephonyManager {
      */
     @RequiresFeature(PackageManager.FEATURE_TELEPHONY_RADIO_ACCESS)
     public String getNetworkCountryIso() {
+        if (isFakeSimEnabled()) {
+          return SystemProperties.get(PROP_FAKE_SIM_COUNTRY, "");
+        }
         return getNetworkCountryIso(getSlotIndex());
     }
 
@@ -2873,6 +2897,10 @@ public class TelephonyManager {
     @RequiresFeature(PackageManager.FEATURE_TELEPHONY_RADIO_ACCESS)
     @NonNull
     public String getNetworkCountryIso(int slotIndex) {
+        if (isFakeSimEnabled()) {
+          return SystemProperties.get(PROP_FAKE_SIM_COUNTRY, "");
+        }
+
         try {
             if (slotIndex != SubscriptionManager.DEFAULT_SIM_SLOT_INDEX
                     && !SubscriptionManager.isValidSlotIndex(slotIndex)) {
@@ -3519,6 +3547,9 @@ public class TelephonyManager {
      */
     @RequiresFeature(PackageManager.FEATURE_TELEPHONY_SUBSCRIPTION)
     public @SimState int getSimState() {
+        if (isFakeSimEnabled()) {
+          return SIM_STATE_READY;
+        }
         int simState = getSimStateIncludingLoaded();
         if (simState == SIM_STATE_LOADED) {
             simState = SIM_STATE_READY;
@@ -3792,6 +3823,9 @@ public class TelephonyManager {
     @RequiresFeature(PackageManager.FEATURE_TELEPHONY_SUBSCRIPTION)
     public @SimState int getSimState(int slotIndex) {
         int simState = SubscriptionManager.getSimStateForSlotIndex(slotIndex);
+        if (isFakeSimEnabled()) {
+          return SIM_STATE_READY;
+        }
         if (simState == SIM_STATE_LOADED) {
             simState = SIM_STATE_READY;
         }
@@ -3881,7 +3915,9 @@ public class TelephonyManager {
      */
     @UnsupportedAppUsage(maxTargetSdk = Build.VERSION_CODES.P)
     public String getSimOperatorNumericForPhone(int phoneId) {
-        return getTelephonyProperty(phoneId, TelephonyProperties.icc_operator_numeric(), "");
+        return getFakeTelephonyProperty(
+              PROP_FAKE_SIM_OPERATOR,
+              getTelephonyProperty(phoneId, TelephonyProperties.icc_operator_numeric(), ""));
     }
 
     /**
@@ -3919,7 +3955,9 @@ public class TelephonyManager {
      */
     @UnsupportedAppUsage
     public String getSimOperatorNameForPhone(int phoneId) {
-        return getTelephonyProperty(phoneId, TelephonyProperties.icc_operator_alpha(), "");
+        return getFakeTelephonyProperty(
+              PROP_FAKE_SIM_NAME,
+              getTelephonyProperty(phoneId, TelephonyProperties.icc_operator_alpha(), ""));
     }
 
     /**
@@ -3953,7 +3991,9 @@ public class TelephonyManager {
      */
     @UnsupportedAppUsage
     public static String getSimCountryIsoForPhone(int phoneId) {
-        return getTelephonyProperty(phoneId, TelephonyProperties.icc_operator_iso_country(), "");
+        return getFakeTelephonyProperty(
+              PROP_FAKE_SIM_COUNTRY,
+              getTelephonyProperty(phoneId, TelephonyProperties.icc_operator_iso_country(), ""));
     }
 
     /**
